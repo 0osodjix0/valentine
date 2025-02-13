@@ -1,32 +1,26 @@
 import pygame
 import random
-import os
-from flask import Flask, render_template
-from flask_ngrok import run_with_ngrok
+
+# Инициализация pygame
+pygame.init()
 
 # Настройки экрана
 WIDTH, HEIGHT = 800, 600
-
-# Создаём Flask-приложение
-app = Flask(__name__)
-run_with_ngrok(app)  # Делаем сервер доступным по ссылке
-
-# Запуск Pygame
-pygame.init()
 screen = pygame.display.set_mode((WIDTH, HEIGHT))
 pygame.display.set_caption("Happy Valentine's Day!")
 
-# Загрузка изображений
-heart_img = pygame.image.load(os.path.join(BASE_PATH, "heart_image.jpg"))
-heart_img = pygame.transform.scale(heart_img, (30, 30))
+# Загрузка изображения сердца
+heart_img = pygame.image.load("heart_image.jpg")  # Замени на свой файл
+heart_img = pygame.transform.scale(heart_img, (30, 30))  # Маленькие сердца
 
-final_heart_img = pygame.image.load(os.path.join(BASE_PATH, "final_heart.jpg"))
+# Загрузка финального изображения
+final_heart_img = pygame.image.load("final_heart.jpg")  # Замени на свой файл
 final_heart_img = pygame.transform.scale(final_heart_img, (WIDTH, HEIGHT))
 
-# Загрузка музыки
+# Загрузка фоновой музыки
 pygame.mixer.init()
 try:
-    pygame.mixer.music.load(os.path.join(BASE_PATH, "background_music.mp3"))
+    pygame.mixer.music.load("background_music.mp3")  # Замени на свой файл
     pygame.mixer.music.play(-1)  # Зацикливаем музыку
 except pygame.error:
     print("Фоновая музыка не найдена!")
@@ -68,6 +62,7 @@ class Heart:
         self.x += self.speed_x
         self.y += self.speed_y
 
+        # Если сердце выходит за границы экрана, меняем направление
         if self.x < 0 or self.x > WIDTH - self.size:
             self.speed_x = -self.speed_x
         if self.y < 0 or self.y > HEIGHT - self.size:
@@ -78,43 +73,42 @@ class Heart:
         screen.blit(resized_heart, (self.x, self.y))
 
 # Список сердец
-hearts = [Heart() for _ in range(10)]
+hearts = [Heart() for _ in range(10)]  # Начальное количество сердец
+
 clock = pygame.time.Clock()
 running = True
-current_message_index = 0
-show_final_image = False
+show_final_image = False  # Показывать финальное изображение после всех сообщений
+current_message_index = 0  # Индекс текущего сообщения
 
-@app.route("/")
-def run_game():
-    global running, current_message_index, show_final_image
+while running:
+    screen.fill((0, 0, 0))  # Чёрный фон
 
-    while running:
-        screen.fill((0, 0, 0))
+    # Проверка событий (нажатие на экран)
+    for event in pygame.event.get():
+        if event.type == pygame.QUIT:
+            running = False
+        if event.type == pygame.MOUSEBUTTONDOWN:
+            if current_message_index < len(messages):
+                current_message_index += 1  # Переход к следующему сообщению
+            elif current_message_index == len(messages):  # После последнего сообщения показываем картинку
+                show_final_image = True
 
-        for event in pygame.event.get():
-            if event.type == pygame.QUIT:
-                running = False
-            if event.type == pygame.MOUSEBUTTONDOWN:
-                if current_message_index < len(messages) - 1:
-                    current_message_index += 1
-                else:
-                    show_final_image = True
-
-        if show_final_image:
-            screen.blit(final_heart_img, (0, 0))
-        else:
-            text = font.render(messages[current_message_index], True, (255, 255, 255))
+    # Если все сообщения показаны, показываем финальное изображение
+    if show_final_image:
+        screen.blit(final_heart_img, (0, 0))
+    else:
+        # Отображаем текущее сообщение
+        if current_message_index < len(messages):
+            text = font.render(messages[current_message_index], True, (255, 255, 255))  # Белый текст
             text_rect = text.get_rect(center=(WIDTH // 2, HEIGHT // 2))
             screen.blit(text, text_rect)
 
-            for heart in hearts:
-                heart.move()
-                heart.draw()
+        # Двигаем и рисуем маленькие сердца
+        for heart in hearts:
+            heart.move()
+            heart.draw()
 
-        pygame.display.flip()
-        clock.tick(30)
+    pygame.display.flip()
+    clock.tick(30)
 
-    return "Игра завершена"
-
-if __name__ == "__main__":
-    app.run()
+pygame.quit()
