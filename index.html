@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Happy Valentine's Day!</title>
+    <style>
+        body {
+            background-color: black;
+            color: white;
+            font-family: Arial, sans-serif;
+            text-align: center;
+            overflow: hidden;
+        }
+        .message {
+            font-size: 24px;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            cursor: pointer;
+        }
+        .heart {
+            position: absolute;
+            width: 20px;
+            height: 20px;
+            background: red;
+            clip-path: polygon(50% 0%, 100% 35%, 80% 100%, 50% 80%, 20% 100%, 0% 35%);
+            animation: floatUp 3s linear infinite;
+        }
+        @keyframes floatUp {
+            from {
+                transform: translateY(0);
+                opacity: 1;
+            }
+            to {
+                transform: translateY(-100vh);
+                opacity: 0;
+            }
+        }
+        .final-image {
+            display: none;
+            width: 100%;
+            height: 100vh;
+            position: absolute;
+            top: 0;
+            left: 0;
+        }
+        .music-button {
+            position: fixed;
+            top: 10px;
+            right: 10px;
+            background: white;
+            color: black;
+            border: none;
+            padding: 10px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <div class="message" id="message">Нажми где угодно</div>
+    <img src="heart_image.jpg" class="final-image" id="finalImage">
+    <button class="music-button" id="musicButton">🔊</button>
+    <audio id="backgroundMusic" loop>
+        <source src="background_music.mp3" type="audio/mpeg">
+    </audio>
+    
+    <script>
+        const messages = [
+            "Эй, ты ❤️", "Я хочу тебе кое-что сказать", "Попробуй нажать", "Нажми еще раз",
+            "Давай, не сдавайся, нажимай", "Обещаю, это последний раз", "Серьезно", "Это",
+            "Последний", "Но это обман, хехе, хахаха, давай еще!", "Я знаю, ты уже злишься",
+            "Хмм", "Ладно тогда", "А ведь", "Я просто хотел(а) сказать", "сосал(а)?"
+        ];
+        let index = 0;
+        const messageDiv = document.getElementById("message");
+        const finalImage = document.getElementById("finalImage");
+        const music = document.getElementById("backgroundMusic");
+        const musicButton = document.getElementById("musicButton");
+        let musicPlaying = false;
+        
+        document.body.addEventListener("click", function () {
+            if (!musicPlaying) {
+                music.play();
+                musicPlaying = true;
+            }
+            if (index < messages.length) {
+                messageDiv.textContent = messages[index];
+                index++;
+            } else {
+                messageDiv.style.display = "none";
+                finalImage.style.display = "block";
+            }
+            
+            createHeart();
+        });
+        
+        function createHeart() {
+            const heart = document.createElement("div");
+            heart.classList.add("heart");
+            heart.style.left = Math.random() * window.innerWidth + "px";
+            heart.style.top = window.innerHeight + "px";
+            document.body.appendChild(heart);
+            
+            setTimeout(() => heart.remove(), 3000);
+        }
+        
+        musicButton.addEventListener("click", function () {
+            if (music.paused) {
+                music.play();
+                musicButton.textContent = "🔊";
+            } else {
+                music.pause();
+                musicButton.textContent = "🔇";
+            }
+        });
+    </script>
+</body>
+</html>
