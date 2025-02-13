@@ -4,9 +4,6 @@ import os
 from flask import Flask, render_template
 from flask_ngrok import run_with_ngrok
 
-# Путь к папке с файлами
-BASE_PATH = "/content/drive/MyDrive/pygame_app"
-
 # Настройки экрана
 WIDTH, HEIGHT = 800, 600
 
